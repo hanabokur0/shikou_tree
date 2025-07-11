@@ -5,8 +5,9 @@
   <meta charset="utf-8">
   <title>思考ツリー・プロトタイプ</title>
   <style>
-    body { font-family: sans-serif; text-align: center; background: #f4f4f4; }
-    #tree { margin-top: 20px; }
+    body { font-family: sans-serif; text-align: center; background: #f4f4f4; margin: 0; padding: 20px; }
+    h1 { margin-bottom: 10px; }
+    #tree, #startMenu { margin-top: 20px; }
     .node {
       border: 1px solid #333;
       background: white;
@@ -19,13 +20,44 @@
     .branch {
       margin-left: 30px;
     }
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 14px;
+      border-radius: 5px;
+      border: none;
+      background: #333;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #555;
+    }
   </style>
 </head>
 <body>
   <h1>思考ツリー・プロトタイプ</h1>
-  <div id="tree"></div>
+
+  <div id="startMenu">
+    <h2>あなたの思考の出発点は？</h2>
+    <button onclick="startTree('選択肢を広げますか')">選択肢を広げますか</button>
+    <button onclick="startTree('それを深く思考しますか')">それを深く思考しますか</button>
+    <button onclick="startTree('想像力を伸ばしてみますか')">想像力を伸ばしてみますか</button>
+    <button onclick="startTree('反論を考えますか')">反論を考えますか</button>
+    <button onclick="startTree('アイデアを増やしますか')">アイデアを増やしますか</button>
+  </div>
+
+  <div id="tree" style="display:none;"></div>
+
   <script>
-    const root = { text: "主ノード：テーマを入力", children: [] };
+    const root = { text: "", children: [] };
+
+    function startTree(startText) {
+      root.text = startText;
+      document.getElementById("startMenu").style.display = "none";
+      document.getElementById("tree").style.display = "block";
+      updateTree();
+    }
 
     function renderTree(node, container) {
       const div = document.createElement("div");
@@ -64,8 +96,6 @@
       treeDiv.innerHTML = "";
       renderTree(root, treeDiv);
     }
-
-    updateTree();
   </script>
 </body>
 </html>
