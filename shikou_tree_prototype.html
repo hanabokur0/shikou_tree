@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>思考ツリー・プロトタイプ</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f4f4f4; }
+    #tree { margin-top: 20px; }
+    .node {
+      border: 1px solid #333;
+      background: white;
+      padding: 6px 10px;
+      border-radius: 5px;
+      display: inline-block;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .branch {
+      margin-left: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>思考ツリー・プロトタイプ</h1>
+  <div id="tree"></div>
+  <script>
+    const root = { text: "主ノード：テーマを入力", children: [] };
+
+    function renderTree(node, container) {
+      const div = document.createElement("div");
+      div.className = "node";
+      div.textContent = node.text;
+      div.onclick = () => {
+        const newText = prompt("ノードを編集", node.text);
+        if (newText) {
+          node.text = newText;
+          updateTree();
+        }
+      };
+      container.appendChild(div);
+
+      const addBtn = document.createElement("button");
+      addBtn.textContent = "＋枝を追加";
+      addBtn.onclick = () => {
+        const childText = prompt("新しい枝のテキスト");
+        if (childText) {
+          node.children.push({ text: childText, children: [] });
+          updateTree();
+        }
+      };
+      container.appendChild(addBtn);
+
+      if (node.children.length > 0) {
+        const branchDiv = document.createElement("div");
+        branchDiv.className = "branch";
+        node.children.forEach(child => renderTree(child, branchDiv));
+        container.appendChild(branchDiv);
+      }
+    }
+
+    function updateTree() {
+      const treeDiv = document.getElementById("tree");
+      treeDiv.innerHTML = "";
+      renderTree(root, treeDiv);
+    }
+
+    updateTree();
+  </script>
+</body>
+</html>
