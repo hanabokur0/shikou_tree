@@ -7,7 +7,7 @@
   <style>
     body { font-family: sans-serif; text-align: center; background: #f4f4f4; margin: 0; padding: 20px; }
     h1 { margin-bottom: 10px; }
-    #tree, #startMenu { margin-top: 20px; }
+    #tree { margin-top: 20px; }
     .node {
       border: 1px solid #333;
       background: white;
@@ -20,10 +20,13 @@
     .branch {
       margin-left: 30px;
     }
+    .option-container {
+      margin-top: 10px;
+    }
     button {
       margin: 5px;
-      padding: 10px 15px;
-      font-size: 14px;
+      padding: 8px 12px;
+      font-size: 13px;
       border-radius: 5px;
       border: none;
       background: #333;
@@ -38,26 +41,10 @@
 <body>
   <h1>思考ツリー・プロトタイプ</h1>
 
-  <div id="startMenu">
-    <h2>あなたの思考の出発点は？</h2>
-    <button onclick="startTree('選択肢を広げますか')">選択肢を広げますか</button>
-    <button onclick="startTree('それを深く思考しますか')">それを深く思考しますか</button>
-    <button onclick="startTree('想像力を伸ばしてみますか')">想像力を伸ばしてみますか</button>
-    <button onclick="startTree('反論を考えますか')">反論を考えますか</button>
-    <button onclick="startTree('アイデアを増やしますか')">アイデアを増やしますか</button>
-  </div>
-
-  <div id="tree" style="display:none;"></div>
+  <div id="tree"></div>
 
   <script>
-    const root = { text: "", children: [] };
-
-    function startTree(startText) {
-      root.text = startText;
-      document.getElementById("startMenu").style.display = "none";
-      document.getElementById("tree").style.display = "block";
-      updateTree();
-    }
+    const root = { text: "主ノード：テーマを入力", children: [] };
 
     function renderTree(node, container) {
       const div = document.createElement("div");
@@ -72,16 +59,32 @@
       };
       container.appendChild(div);
 
-      const addBtn = document.createElement("button");
-      addBtn.textContent = "＋枝を追加";
-      addBtn.onclick = () => {
-        const childText = prompt("新しい枝のテキスト");
-        if (childText) {
-          node.children.push({ text: childText, children: [] });
+      const controlDiv = document.createElement("div");
+      controlDiv.className = "option-container";
+
+      const label = document.createElement("div");
+      label.textContent = "＋枝を追加するには、以下から選んでください:";
+      controlDiv.appendChild(label);
+
+      const options = [
+        "選択肢を広げますか",
+        "それを深く思考しますか",
+        "想像力を伸ばしてみますか",
+        "反論を考えますか",
+        "アイデアを増やしますか"
+      ];
+
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => {
+          node.children.push({ text: option, children: [] });
           updateTree();
-        }
-      };
-      container.appendChild(addBtn);
+        };
+        controlDiv.appendChild(btn);
+      });
+
+      container.appendChild(controlDiv);
 
       if (node.children.length > 0) {
         const branchDiv = document.createElement("div");
@@ -96,6 +99,8 @@
       treeDiv.innerHTML = "";
       renderTree(root, treeDiv);
     }
+
+    updateTree();
   </script>
 </body>
 </html>
