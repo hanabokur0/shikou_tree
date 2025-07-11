@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>思考ツリー・プロトタイプ</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f4f4f4; margin: 0; padding: 20px; }
+    h1 { margin-bottom: 10px; }
+    #tree { margin-top: 20px; }
+    .node {
+      border: 1px solid #333;
+      background: white;
+      padding: 6px 10px;
+      border-radius: 5px;
+      display: inline-block;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .branch {
+      margin-left: 30px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 5px;
+      border: none;
+      background: #333;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #555;
+    }
+    .option-container {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>思考ツリー・プロトタイプ</h1>
+
+  <div id="tree"></div>
+
+  <script>
+    const root = { text: "主ノード：テーマを入力", children: [] };
+
+    function renderTree(node, container) {
+      const div = document.createElement("div");
+      div.className = "node";
+      div.textContent = node.text;
+      div.onclick = () => {
+        const newText = prompt("ノードを編集", node.text);
+        if (newText) {
+          node.text = newText;
+          updateTree();
+        }
+      };
+      container.appendChild(div);
+
+      const addBtn = document.createElement("button");
+      addBtn.textContent = "＋枝を追加";
+      addBtn.onclick = () => showOptions(node);
+      container.appendChild(addBtn);
+
+      if (node.optionDiv) {
+        container.appendChild(node.optionDiv);
+      }
+
+      if (node.children.length > 0) {
+        const branchDiv = document.createElement("div");
+        branchDiv.className = "branch";
+        node.children.forEach(child => renderTree(child, branchDiv));
+        container.appendChild(branchDiv);
+      }
+    }
+
+    function showOptions(node) {
+      const options = [
+        "選択肢を広げますか",
+        "それを深く思考しますか",
+        "想像力を伸ばしてみますか",
+        "反論を考えますか",
+        "アイデアを増やしますか"
+      ];
+
+      const optionDiv = document.createElement("div");
+      optionDiv.className = "option-container";
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => {
+          node.children.push({ text: option, children: [] });
+          node.optionDiv = null;
+          updateTree();
+        };
+        optionDiv.appendChild(btn);
+      });
+
+      node.optionDiv = optionDiv;
+      updateTree();
+    }
+
+    function updateTree() {
+      const treeDiv = document.getElementById("tree");
+      treeDiv.innerHTML = "";
+      renderTree(root, treeDiv);
+    }
+
+    updateTree();
+  </script>
+</body>
+</html>
