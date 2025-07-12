@@ -106,6 +106,7 @@
       const seed = createNode(text, x, y);
       canvas.appendChild(seed);
       document.getElementById("menu").style.display = "none";
+      requestAnimationFrame(() => updateLines());
     }
 
     function createNode(text, x, y, parent = null) {
@@ -118,7 +119,7 @@
 
       div.addEventListener("click", (e) => {
         e.stopPropagation();
-        showOptionMenu(div, x, y);
+        showOptionMenu(div, div.offsetLeft, div.offsetTop);
       });
 
       div.addEventListener("dragstart", (e) => {
@@ -166,7 +167,7 @@
             const newY = parentDiv.offsetTop + offset[1];
             const newNode = createNode(userInput, newX, newY, parentDiv);
             document.getElementById("canvas").appendChild(newNode);
-            updateLines();
+            requestAnimationFrame(() => updateLines());
           }
           menu.remove();
         };
