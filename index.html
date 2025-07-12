@@ -80,7 +80,6 @@
     };
 
     let seedNode = null;
-    let seedPosition = { x: 0, y: 0 };
 
     function placeSeed() {
       const text = document.getElementById("seedInput").value;
@@ -89,7 +88,6 @@
       const canvas = document.getElementById("canvas");
       const x = window.innerWidth / 2;
       const y = window.innerHeight / 2;
-      seedPosition = { x, y };
 
       const seed = createNode(text, x, y);
       canvas.appendChild(seed);
@@ -97,11 +95,15 @@
 
       document.getElementById("menu").style.display = "none";
 
+      createBranches(seed, x, y);
+    }
+
+    function createBranches(parentNode, baseX, baseY) {
       Object.entries(directions).forEach(([label, offset]) => {
         const [dx, dy] = offset;
-        const node = createNode(label, x + dx, y + dy);
+        const node = createNode(label, baseX + dx, baseY + dy);
         node.onclick = () => addChild(node, label);
-        canvas.appendChild(node);
+        document.getElementById("canvas").appendChild(node);
       });
     }
 
@@ -111,6 +113,13 @@
       div.style.left = `${x}px`;
       div.style.top = `${y}px`;
       div.textContent = text;
+      div.onclick = () => {
+        if (text in directions) {
+          addChild(div, text);
+        } else {
+          createBranches(div, x, y);
+        }
+      };
       return div;
     }
 
