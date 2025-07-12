@@ -23,7 +23,7 @@
       border: 1px solid #333;
       border-radius: 5px;
       padding: 8px 12px;
-      cursor: pointer;
+      cursor: move;
       box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
       user-select: none;
       white-space: nowrap;
@@ -63,8 +63,16 @@
     }
     .option-button {
       display: block;
-      margin: 4px 0;
+      margin-top: 4px;
       font-size: 13px;
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -73,10 +81,10 @@
     <input type="text" id="seedInput" placeholder="思考テーマ（種）をここに入力">
     <button onclick="placeSeed()">種をまく</button>
   </div>
+  <svg id="lines"></svg>
   <div id="canvas"></div>
 
   <script>
-    let seedNode = null;
     const directions = {
       "選択肢を広げますか": [0, -150],
       "それを深く思考しますか": [150, 0],
@@ -84,6 +92,8 @@
       "反論を考えますか": [-150, 0],
       "アイデアを増やしますか": [60, 60]
     };
+
+    const connections = [];
 
     function placeSeed() {
       const text = document.getElementById("seedInput").value;
@@ -95,21 +105,38 @@
 
       const seed = createNode(text, x, y);
       canvas.appendChild(seed);
-      seedNode = seed;
-
       document.getElementById("menu").style.display = "none";
     }
 
-    function createNode(text, x, y) {
+    function createNode(text, x, y, parent = null) {
       const div = document.createElement("div");
       div.className = "node";
       div.style.left = `${x}px`;
       div.style.top = `${y}px`;
       div.textContent = text;
-      div.onclick = (e) => {
+      div.draggable = true;
+
+      div.addEventListener("click", (e) => {
         e.stopPropagation();
         showOptionMenu(div, x, y);
-      };
+      });
+
+      div.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", null);
+        div.startX = e.clientX - div.offsetLeft;
+        div.startY = e.clientY - div.offsetTop;
+      });
+
+      div.addEventListener("dragend", (e) => {
+        div.style.left = `${e.clientX - div.startX}px`;
+        div.style.top = `${e.clientY - div.startY}px`;
+        updateLines();
+      });
+
+      div.nodeId = Math.random().toString(36).substr(2, 9);
+      div.parent = parent;
+      if (parent) connections.push([parent, div]);
+
       return div;
     }
 
@@ -127,7 +154,6 @@
       menu.style.padding = "10px";
       menu.style.borderRadius = "8px";
       menu.style.boxShadow = "2px 2px 8px rgba(0,0,0,0.2)";
-      menu.style.zIndex = 100;
 
       for (const [label, offset] of Object.entries(directions)) {
         const btn = document.createElement("button");
@@ -136,20 +162,38 @@
         btn.onclick = () => {
           const userInput = prompt(label);
           if (userInput) {
-            const newX = baseX + offset[0];
-            const newY = baseY + offset[1];
-            const newNode = createNode(userInput, newX, newY);
+            const newX = parentDiv.offsetLeft + offset[0];
+            const newY = parentDiv.offsetTop + offset[1];
+            const newNode = createNode(userInput, newX, newY, parentDiv);
             document.getElementById("canvas").appendChild(newNode);
+            updateLines();
           }
           menu.remove();
         };
         menu.appendChild(btn);
       }
-
       document.body.appendChild(menu);
     }
 
-    // クリック外で選択肢メニュー閉じる
+    function updateLines() {
+      const svg = document.getElementById("lines");
+      svg.innerHTML = "";
+      connections.forEach(([from, to]) => {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const x1 = from.offsetLeft + from.offsetWidth / 2;
+        const y1 = from.offsetTop + from.offsetHeight / 2;
+        const x2 = to.offsetLeft + to.offsetWidth / 2;
+        const y2 = to.offsetTop + to.offsetHeight / 2;
+        line.setAttribute("x1", x1);
+        line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2);
+        line.setAttribute("y2", y2);
+        line.setAttribute("stroke", "#333");
+        line.setAttribute("stroke-width", "2");
+        svg.appendChild(line);
+      });
+    }
+
     document.addEventListener("click", () => {
       const existingMenu = document.getElementById("optionMenu");
       if (existingMenu) existingMenu.remove();
