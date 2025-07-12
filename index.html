@@ -61,6 +61,11 @@
     #menu button:hover {
       background: #555;
     }
+    .option-button {
+      display: block;
+      margin-top: 4px;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -71,6 +76,7 @@
   <div id="canvas"></div>
 
   <script>
+    let seedNode = null;
     const directions = {
       "選択肢を広げますか": [0, -150],
       "それを深く思考しますか": [150, 0],
@@ -78,8 +84,6 @@
       "反論を考えますか": [-150, 0],
       "アイデアを増やしますか": [60, 60]
     };
-
-    let seedNode = null;
 
     function placeSeed() {
       const text = document.getElementById("seedInput").value;
@@ -94,17 +98,6 @@
       seedNode = seed;
 
       document.getElementById("menu").style.display = "none";
-
-      createBranches(seed, x, y);
-    }
-
-    function createBranches(parentNode, baseX, baseY) {
-      Object.entries(directions).forEach(([label, offset]) => {
-        const [dx, dy] = offset;
-        const node = createNode(label, baseX + dx, baseY + dy);
-        node.onclick = () => addChild(node, label);
-        document.getElementById("canvas").appendChild(node);
-      });
     }
 
     function createNode(text, x, y) {
@@ -113,26 +106,42 @@
       div.style.left = `${x}px`;
       div.style.top = `${y}px`;
       div.textContent = text;
-      div.onclick = () => {
-        if (text in directions) {
-          addChild(div, text);
-        } else {
-          createBranches(div, x, y);
-        }
+      div.onclick = (e) => {
+        e.stopPropagation();
+        showOptionMenu(div, x, y);
       };
       return div;
     }
 
-    function addChild(parentNode, baseText) {
-      const idea = prompt(`${baseText} → メモを入力:`);
-      if (idea) {
-        const rect = parentNode.getBoundingClientRect();
-        const canvasRect = document.getElementById("canvas").getBoundingClientRect();
-        const offsetX = rect.left - canvasRect.left;
-        const offsetY = rect.top - canvasRect.top;
-        const newNode = createNode(idea, offsetX + 30, offsetY + 30);
-        document.getElementById("canvas").appendChild(newNode);
+    function showOptionMenu(parentDiv, baseX, baseY) {
+      const existingMenu = document.getElementById("optionMenu");
+      if (existingMenu) existingMenu.remove();
+
+      const menu = document.createElement("div");
+      menu.id = "optionMenu";
+      menu.style.position = "absolute";
+      menu.style.left = `${baseX + 20}px`;
+      menu.style.top = `${baseY + 20}px`;
+      menu.style.background = "white";
+      menu.style.border = "1px solid #aaa";
+      menu.style.padding = "10px";
+      menu.style.borderRadius = "8px";
+      menu.style.boxShadow = "2px 2px 8px rgba(0,0,0,0.2)";
+
+      for (const [label, offset] of Object.entries(directions)) {
+        const btn = document.createElement("button");
+        btn.className = "option-button";
+        btn.textContent = label;
+        btn.onclick = () => {
+          const newX = baseX + offset[0];
+          const newY = baseY + offset[1];
+          const newNode = createNode(label, newX, newY);
+          document.getElementById("canvas").appendChild(newNode);
+          menu.remove();
+        };
+        menu.appendChild(btn);
       }
+      document.body.appendChild(menu);
     }
   </script>
 </body>
