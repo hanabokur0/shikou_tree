@@ -82,6 +82,8 @@
   <div id="menu">
     <input type="text" id="seedInput" placeholder="思考テーマ（種）をここに入力">
     <button onclick="placeSeed()">種をまく</button>
+    <button onclick="saveTree()">保存</button>
+    <button onclick="loadTree()">読み込み</button>
   </div>
   <svg id="lines"></svg>
   <div id="canvas"></div>
@@ -108,7 +110,7 @@
       const seed = createNode(text, x, y);
       canvas.appendChild(seed);
       document.getElementById("menu").style.display = "none";
-      requestAnimationFrame(() => updateLines());
+      setTimeout(() => updateLines(), 0);
     }
 
     function createNode(text, x, y, parent = null) {
@@ -164,13 +166,15 @@
         btn.className = "option-button";
         btn.textContent = label;
         btn.onclick = () => {
-          const userInput = prompt(label);
-          if (userInput) {
+          const userInput = prompt(label + "（180文字以内）");
+          if (userInput && userInput.length <= 180) {
             const newX = parentDiv.offsetLeft + offset[0];
             const newY = parentDiv.offsetTop + offset[1];
             const newNode = createNode(userInput, newX, newY, parentDiv);
             document.getElementById("canvas").appendChild(newNode);
-            requestAnimationFrame(() => updateLines());
+            setTimeout(() => updateLines(), 0);
+          } else if (userInput) {
+            alert("180文字以内で入力してください。");
           }
           menu.remove();
         };
@@ -196,6 +200,42 @@
         line.setAttribute("stroke-width", "2");
         svg.appendChild(line);
       });
+    }
+
+    function saveTree() {
+      const nodes = Array.from(document.getElementsByClassName("node")).map(node => ({
+        text: node.textContent,
+        x: node.offsetLeft,
+        y: node.offsetTop,
+        parentId: node.parent?.nodeId || null,
+        nodeId: node.nodeId
+      }));
+      localStorage.setItem("shikou_tree", JSON.stringify(nodes));
+      alert("保存しました");
+    }
+
+    function loadTree() {
+      const saved = JSON.parse(localStorage.getItem("shikou_tree"));
+      if (!saved) return;
+      document.getElementById("canvas").innerHTML = "";
+      document.getElementById("lines").innerHTML = "";
+      const nodeMap = {};
+      connections.length = 0;
+      saved.forEach(data => {
+        const node = createNode(data.text, data.x, data.y);
+        node.nodeId = data.nodeId;
+        document.getElementById("canvas").appendChild(node);
+        nodeMap[data.nodeId] = node;
+      });
+      saved.forEach(data => {
+        if (data.parentId && nodeMap[data.parentId]) {
+          const child = nodeMap[data.nodeId];
+          child.parent = nodeMap[data.parentId];
+          connections.push([child.parent, child]);
+        }
+      });
+      setTimeout(() => updateLines(), 0);
+      document.getElementById("menu").style.display = "none";
     }
 
     document.addEventListener("click", () => {
