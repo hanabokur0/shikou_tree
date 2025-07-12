@@ -55,14 +55,15 @@
 
   <script>
     const directions = {
-      "選択肢を広げますか": [150, 0],
-      "それを深く思考しますか": [0, 150],
-      "想像力を伸ばしてみますか": [0, -150],
-      "反論を考えますか": [-150, 0],
-      "アイデアを増やしますか": [0, 0]
+      "選択肢を広げますか": [180, 0],
+      "それを深く思考しますか": [0, 180],
+      "想像力を伸ばしてみますか": [0, -180],
+      "反論を考えますか": [-180, 0],
+      "アイデアを増やしますか": [30, 30]  // 少しずらす重ね配置
     };
 
     let seedNode = null;
+    let seedPosition = { x: 0, y: 0 };
 
     function placeSeed() {
       const text = document.getElementById("seedInput").value;
@@ -70,14 +71,17 @@
       document.getElementById("menu").style.display = "none";
 
       const canvas = document.getElementById("canvas");
-      const seed = createNode(text, window.innerWidth / 2, window.innerHeight / 2);
+      const x = window.innerWidth / 2;
+      const y = window.innerHeight / 2;
+      seedPosition = { x, y };
+
+      const seed = createNode(text, x, y);
       canvas.appendChild(seed);
       seedNode = seed;
 
-      // 選択肢ごとの方向に枝ノードを配置
       Object.entries(directions).forEach(([label, offset]) => {
         const [dx, dy] = offset;
-        const node = createNode(label, window.innerWidth / 2 + dx, window.innerHeight / 2 + dy);
+        const node = createNode(label, x + dx, y + dy);
         node.onclick = () => addChild(node, label);
         canvas.appendChild(node);
       });
@@ -96,7 +100,10 @@
       const idea = prompt(`${baseText} → メモを入力:`);
       if (idea) {
         const rect = parentNode.getBoundingClientRect();
-        const newNode = createNode(idea, rect.left + 40, rect.top + 40);
+        const canvasRect = document.getElementById("canvas").getBoundingClientRect();
+        const offsetX = rect.left - canvasRect.left;
+        const offsetY = rect.top - canvasRect.top;
+        const newNode = createNode(idea, offsetX + 40, offsetY + 40);
         document.getElementById("canvas").appendChild(newNode);
       }
     }
