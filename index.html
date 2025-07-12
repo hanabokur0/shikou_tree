@@ -133,19 +133,13 @@
         btn.className = "option-button";
         btn.textContent = label;
         btn.onclick = () => {
-          const newX = baseX + offset[0];
-          const newY = baseY + offset[1];
-          const newNode = createNode("", newX, newY);
-
-          // 入力用プロンプトを出す
           const userInput = prompt(label);
           if (userInput) {
-            newNode.textContent = userInput;
-          } else {
-            newNode.textContent = label;
+            const newX = baseX + offset[0];
+            const newY = baseY + offset[1];
+            const newNode = createNode(userInput, newX, newY);
+            document.getElementById("canvas").appendChild(newNode);
           }
-
-          document.getElementById("canvas").appendChild(newNode);
           menu.remove();
         };
         menu.appendChild(btn);
