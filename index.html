@@ -74,7 +74,6 @@
     function placeSeed() {
       const text = document.getElementById("seedInput").value;
       if (!text) return;
-      document.getElementById("menu").style.display = "none";
 
       const canvas = document.getElementById("canvas");
       const x = window.innerWidth / 2;
@@ -84,6 +83,8 @@
       const seed = createNode(text, x, y);
       canvas.appendChild(seed);
       seedNode = seed;
+
+      document.getElementById("menu").style.display = "none";
 
       Object.entries(directions).forEach(([label, offset]) => {
         const [dx, dy] = offset;
