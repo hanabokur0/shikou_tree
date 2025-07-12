@@ -26,6 +26,7 @@
       cursor: pointer;
       box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
       user-select: none;
+      white-space: nowrap;
     }
     #menu {
       position: absolute;
@@ -34,6 +35,11 @@
       transform: translateX(-50%);
       display: flex;
       gap: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 10;
     }
     #menu input {
       padding: 6px;
@@ -55,11 +61,11 @@
 
   <script>
     const directions = {
-      "選択肢を広げますか": [180, 0],
-      "それを深く思考しますか": [0, 180],
-      "想像力を伸ばしてみますか": [0, -180],
-      "反論を考えますか": [-180, 0],
-      "アイデアを増やしますか": [30, 30]  // 少しずらす重ね配置
+      "選択肢を広げますか": [0, -150],
+      "それを深く思考しますか": [150, 0],
+      "想像力を伸ばしてみますか": [0, 150],
+      "反論を考えますか": [-150, 0],
+      "アイデアを増やしますか": [50, 50]
     };
 
     let seedNode = null;
@@ -103,7 +109,7 @@
         const canvasRect = document.getElementById("canvas").getBoundingClientRect();
         const offsetX = rect.left - canvasRect.left;
         const offsetY = rect.top - canvasRect.top;
-        const newNode = createNode(idea, offsetX + 40, offsetY + 40);
+        const newNode = createNode(idea, offsetX + 30, offsetY + 30);
         document.getElementById("canvas").appendChild(newNode);
       }
     }
