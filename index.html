@@ -63,7 +63,7 @@
     }
     .option-button {
       display: block;
-      margin-top: 4px;
+      margin: 4px 0;
       font-size: 13px;
     }
   </style>
@@ -127,6 +127,7 @@
       menu.style.padding = "10px";
       menu.style.borderRadius = "8px";
       menu.style.boxShadow = "2px 2px 8px rgba(0,0,0,0.2)";
+      menu.style.zIndex = 100;
 
       for (const [label, offset] of Object.entries(directions)) {
         const btn = document.createElement("button");
@@ -144,8 +145,15 @@
         };
         menu.appendChild(btn);
       }
+
       document.body.appendChild(menu);
     }
+
+    // クリック外で選択肢メニュー閉じる
+    document.addEventListener("click", () => {
+      const existingMenu = document.getElementById("optionMenu");
+      if (existingMenu) existingMenu.remove();
+    });
   </script>
 </body>
 </html>
