@@ -135,7 +135,16 @@
         btn.onclick = () => {
           const newX = baseX + offset[0];
           const newY = baseY + offset[1];
-          const newNode = createNode(label, newX, newY);
+          const newNode = createNode("", newX, newY);
+
+          // 入力用プロンプトを出す
+          const userInput = prompt(label);
+          if (userInput) {
+            newNode.textContent = userInput;
+          } else {
+            newNode.textContent = label;
+          }
+
           document.getElementById("canvas").appendChild(newNode);
           menu.remove();
         };
