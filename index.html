@@ -86,61 +86,84 @@
   <svg id="lines"></svg>
   <div id="canvas"></div>
 
-  <script>
-    const directions = {
-      "Expand options?": [0, -150],
-      "Think deeper?": [150, 0],
-      "Use imagination?": [0, 150],
-      "Consider counterarguments?": [-150, 0],
-      "Add new ideas?": [60, 60]
+<script>
+  const directions = {
+    "Expand options?": [0, -150],
+    "Think deeper?": [150, 0],
+    "Use imagination?": [0, 150],
+    "Consider counterarguments?": [-150, 0],
+    "Add new ideas?": [60, 60]
+  };
+
+  const connections = [];
+
+  function placeSeed() {
+    const text = document.getElementById("seedInput").value;
+    if (!text) return;
+
+    const canvas = document.getElementById("canvas");
+    const x = window.innerWidth / 2;
+    const y = window.innerHeight / 2;
+
+    const seed = createNode(text, x, y);
+    canvas.appendChild(seed);
+    setTimeout(() => updateLines(), 0);
+  }
+
+  function createNode(text, x, y, parent = null) {
+    const div = document.createElement("div");
+    div.className = "node";
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.textContent = text;
+    div.draggable = true;
+
+    div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showOptionMenu(div, div.offsetLeft, div.offsetTop);
+    });
+
+    div.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", null);
+      div.startX = e.clientX - div.offsetLeft;
+      div.startY = e.clientY - div.offsetTop;
+    });
+
+    div.addEventListener("dragend", (e) => {
+      div.style.left = `${e.clientX - div.startX}px`;
+      div.style.top = `${e.clientY - div.startY}px`;
+      updateLines();
+    });
+
+    div.nodeId = Math.random().toString(36).substr(2, 9);
+    div.parent = parent;
+    if (parent) connections.push([parent, div]);
+
+    attachMayoiButton(div); // 💬ボタン追加
+
+    return div;
+  }
+
+  // 💬（迷いコメント）ボタンを追加する関数
+  function attachMayoiButton(nodeDiv) {
+    const btn = document.createElement("button");
+    btn.textContent = "💬";
+    btn.style.marginLeft = "8px";
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const prompts = [
+        "What else might be true?",
+        "Could the opposite be valid?",
+        "What are you avoiding?",
+        "Who benefits from this?",
+        "Is this the only path?"
+      ];
+      alert(prompts[Math.floor(Math.random() * prompts.length)]);
     };
+    nodeDiv.appendChild(btn);
+  }
+</script>
 
-    const connections = [];
-
-    function placeSeed() {
-      const text = document.getElementById("seedInput").value;
-      if (!text) return;
-
-      const canvas = document.getElementById("canvas");
-      const x = window.innerWidth / 2;
-      const y = window.innerHeight / 2;
-
-      const seed = createNode(text, x, y);
-      canvas.appendChild(seed);
-      setTimeout(() => updateLines(), 0);
-    }
-
-    function createNode(text, x, y, parent = null) {
-      const div = document.createElement("div");
-      div.className = "node";
-      div.style.left = `${x}px`;
-      div.style.top = `${y}px`;
-      div.textContent = text;
-      div.draggable = true;
-
-      div.addEventListener("click", (e) => {
-        e.stopPropagation();
-        showOptionMenu(div, div.offsetLeft, div.offsetTop);
-      });
-
-      div.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", null);
-        div.startX = e.clientX - div.offsetLeft;
-        div.startY = e.clientY - div.offsetTop;
-      });
-
-      div.addEventListener("dragend", (e) => {
-        div.style.left = `${e.clientX - div.startX}px`;
-        div.style.top = `${e.clientY - div.startY}px`;
-        updateLines();
-      });
-
-      div.nodeId = Math.random().toString(36).substr(2, 9);
-      div.parent = parent;
-      if (parent) connections.push([parent, div]);
-
-      return div;
-    }
 
     function showOptionMenu(parentDiv, baseX, baseY) {
       const existingMenu = document.getElementById("optionMenu");
