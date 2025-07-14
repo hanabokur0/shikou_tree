@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>思考ツリー・プロトタイプ</title>
+  <meta charset="UTF-8" />
+  <title>Thought Tree</title>
   <style>
     body {
       margin: 0;
@@ -79,21 +79,20 @@
 </head>
 <body>
   <div id="menu">
-    <input type="text" id="seedInput" placeholder="思考テーマ（種）をここに入力">
-    <button onclick="placeSeed()">種をまく</button>
-    <button onclick="saveTree()">保存</button>
-    <button onclick="loadTree()">読み込み</button>
+    <input type="text" id="seedInput" placeholder="Enter your seed idea here">
+    <button onclick="placeSeed()">Plant</button>
+    <button onclick="saveTree()">Save</button>
   </div>
   <svg id="lines"></svg>
   <div id="canvas"></div>
 
   <script>
     const directions = {
-      "選択肢を広げますか": [0, -150],
-      "それを深く思考しますか": [150, 0],
-      "想像力を伸ばしてみますか": [0, 150],
-      "反論を考えますか": [-150, 0],
-      "アイデアを増やしますか": [60, 60]
+      "Expand options?": [0, -150],
+      "Think deeper?": [150, 0],
+      "Use imagination?": [0, 150],
+      "Consider counterarguments?": [-150, 0],
+      "Add new ideas?": [60, 60]
     };
 
     const connections = [];
@@ -108,7 +107,6 @@
 
       const seed = createNode(text, x, y);
       canvas.appendChild(seed);
-      document.getElementById("menu").style.display = "flex";
       setTimeout(() => updateLines(), 0);
     }
 
@@ -165,7 +163,7 @@
         btn.className = "option-button";
         btn.textContent = label;
         btn.onclick = () => {
-          const userInput = prompt(label + "（180文字以内）");
+          const userInput = prompt(label + " (180 characters max)");
           if (userInput && userInput.length <= 180) {
             const newX = parentDiv.offsetLeft + offset[0];
             const newY = parentDiv.offsetTop + offset[1];
@@ -173,7 +171,7 @@
             document.getElementById("canvas").appendChild(newNode);
             setTimeout(() => updateLines(), 0);
           } else if (userInput) {
-            alert("180文字以内で入力してください。");
+            alert("Please limit your input to 180 characters.");
           }
           menu.remove();
         };
@@ -209,32 +207,8 @@
         parentId: node.parent?.nodeId || null,
         nodeId: node.nodeId
       }));
-      localStorage.setItem("shikou_tree", JSON.stringify(nodes));
-      alert("保存しました");
-    }
-
-    function loadTree() {
-      const saved = JSON.parse(localStorage.getItem("shikou_tree"));
-      if (!saved) return;
-      document.getElementById("canvas").innerHTML = "";
-      document.getElementById("lines").innerHTML = "";
-      const nodeMap = {};
-      connections.length = 0;
-      saved.forEach(data => {
-        const node = createNode(data.text, data.x, data.y);
-        node.nodeId = data.nodeId;
-        document.getElementById("canvas").appendChild(node);
-        nodeMap[data.nodeId] = node;
-      });
-      saved.forEach(data => {
-        if (data.parentId && nodeMap[data.parentId]) {
-          const child = nodeMap[data.nodeId];
-          child.parent = nodeMap[data.parentId];
-          connections.push([child.parent, child]);
-        }
-      });
-      setTimeout(() => updateLines(), 0);
-      document.getElementById("menu").style.display = "flex";
+      localStorage.setItem("thought_tree", JSON.stringify(nodes));
+      alert("Saved!");
     }
 
     document.addEventListener("click", () => {
